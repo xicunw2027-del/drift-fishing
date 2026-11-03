@@ -72,7 +72,7 @@ body{background:#3f858b}button{font:inherit;cursor:pointer}button:focus-visible{
 @media(max-width:680px){
  .topbar{padding-left:17px;padding-right:15px;gap:6px;height:calc(62px + env(safe-area-inset-top))}.brand{gap:6px}.brand-icon{width:23px;height:23px}.brand-icon svg{width:16px;height:16px}.brand-name{font-size:17px;letter-spacing:-1px}.brand-sub{font-size:6px;letter-spacing:1.2px;margin-top:2px}
  .world-btn{font-size:11px;margin-left:8px;padding:7px 8px;gap:5px}.world-btn .world-flag{font-size:15px}
- .top-right{gap:4px}.top-pill{padding:0 2px;font-size:10px}.top-pill b{font-size:12px}.hud-btn{width:32px;height:32px;font-size:16px}.hud-btn svg{width:18px;height:18px}.sound-btn{display:none}
+ .top-right{gap:4px}.top-pill{padding:0 2px;font-size:10px}.top-pill b{font-size:12px}.hud-btn{width:32px;height:32px;font-size:16px}.hud-btn svg{width:18px;height:18px}.sound-btn{display:grid}
  .scene-head{left:22px;top:calc(94px + env(safe-area-inset-top))}.location-name{font-size:25px}.location-sub{font-size:11px;margin-top:5px}.scene-top{left:22px;top:calc(172px + env(safe-area-inset-top));font-size:11px}.scene-bottom{display:none}
  .action-panel{bottom:calc(27px + env(safe-area-inset-bottom));width:calc(100% - 46px)}.action{height:61px;font-size:18px}.status h3{font-size:17px}.status p{font-size:11px}.status{margin-bottom:13px}.under-action{margin-top:15px}.help{font-size:10px}.result-layer{padding:10px 15px 145px}.result{width:min(320px,100%);padding:18px 15px 16px}.result h2{font-size:25px}.result-fish{height:90px}.result-fish svg{height:87px}
  .sidebar{padding:calc(24px + env(safe-area-inset-top)) 16px 18px}
@@ -92,7 +92,7 @@ body{background:#3f858b}button{font:inherit;cursor:pointer}button:focus-visible{
         <span class="top-pill">🎣 <b id="catchesTop">0</b><span class="tiny">尾</span></span>
         <button id="atlasBtn" class="hud-btn" type="button" aria-label="打开鱼类图鉴" aria-controls="atlasPanel" aria-expanded="false" title="鱼类图鉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.25c-2.5-2.2-6.5-2.2-9-.5v13c2.5-1.7 6.5-1.7 9 .5m0-13c2.5-2.2 6.5-2.2 9-.5v13c-2.5-1.7-6.5-1.7-9 .5m0-13v13"/></svg></button>
         <button id="toolToggle" class="hud-btn" type="button" aria-label="鱼饵和装备" aria-controls="toolsCard" aria-expanded="false" title="装备">⚙</button>
-        <button id="soundBtn" class="hud-btn sound-btn" type="button" aria-label="开启声音" title="切换声音">♫̸</button>
+        <button id="soundBtn" class="hud-btn sound-btn" type="button" aria-label="开启铃铛和音效" title="铃铛和音效开关">🔕</button>
       </div>
     </header>
     <main class="layout">
@@ -199,6 +199,27 @@ body{background:#3f858b}button{font:inherit;cursor:pointer}button:focus-visible{
   function toast(text){let el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200)}
   function alertScene(text,seconds=1.35,isGold=false){alertText=text;alertUntil=performance.now()/1000+seconds;alertGold=isGold;const e=$('sceneAlert');e.textContent=text;e.className='scene-alert show'+(isGold?' golden':'');}
   function playTone(freq=440,dur=.13,type='sine',gain=.06){if(!snd)return;try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();let osc=audio.createOscillator(),vol=audio.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,audio.currentTime);vol.gain.setValueAtTime(gain,audio.currentTime);vol.gain.exponentialRampToValueAtTime(.001,audio.currentTime+dur);osc.connect(vol).connect(audio.destination);osc.start();osc.stop(audio.currentTime+dur)}catch{}}
+  function playBell(strikes=1){
+    if(!snd)return;
+    try{
+      audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+      if(audio.state==='suspended')audio.resume();
+      const now=audio.currentTime;
+      const offsets=strikes>=3?[0,.2,.43]:strikes===2?[0,.24]:[0];
+      const partials=[[1046.5,.045,.78],[2093,.021,.52],[3139.5,.010,.34],[4186,.0045,.22]];
+      for(const offset of offsets){
+        for(const [freq,peak,decay] of partials){
+          const osc=audio.createOscillator(),vol=audio.createGain(),start=now+offset;
+          osc.type='sine';osc.frequency.setValueAtTime(freq,start);
+          vol.gain.setValueAtTime(.0001,start);
+          vol.gain.exponentialRampToValueAtTime(peak,start+.009);
+          vol.gain.exponentialRampToValueAtTime(.0001,start+decay);
+          osc.connect(vol).connect(audio.destination);
+          osc.start(start);osc.stop(start+decay+.025);
+        }
+      }
+    }catch{}
+  }
   function vib(x){try{navigator.vibrate?.(x)}catch{}}
   function floatPosition(t){
     const hor=H*.48,baseX=W*.64,baseY=hor+2+Math.sin(t*2.5)*2.5;
@@ -273,7 +294,7 @@ body{background:#3f858b}button{font:inherit;cursor:pointer}button:focus-visible{
         state='bite';biteLeft=golden?2.8:3.5;biteElapsed=0;
         const p=floatPosition(performance.now()/1000);spawnSplash(p.x,p.y,.9);
         alertScene(golden?'✨ 黄金咬口！快提竿！':'⚡ 浮漂猛沉！有鱼咬钩！',2,golden);
-        vib([100,50,160]);playTone(720,.15);setTimeout(()=>playTone(960,.16),160);renderControl();
+        vib([100,50,160]);playBell(golden?3:2);renderControl();
       }
     }
     else if(state==='bite'){
@@ -372,7 +393,7 @@ body{background:#3f858b}button{font:inherit;cursor:pointer}button:focus-visible{
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheets()});
   $('baitOptions').addEventListener('click',e=>{let btn=e.target.closest('[data-bait]');if(!btn)return;let bait=baitTypes.find(b=>b.id===btn.dataset.bait);if(!bait)return;if(['casting','waiting','bite','fight'].includes(state)){toast('完成本次垂钓后再换饵');return}if(!save.baits.includes(bait.id)){if(save.coins<bait.cost){toast('金币不足，还差 '+(bait.cost-save.coins)+' ●');return}save.coins-=bait.cost;save.baits.push(bait.id);toast('已永久解锁 '+bait.title)}save.bait=bait.id;safeSave();renderTools();renderTop();});
   $('upgradeBtn').addEventListener('click',()=>{if(['casting','waiting','bite','fight'].includes(state)){toast('完成当前垂钓后才能升级');return}if(save.rod>=4)return;let cost=upgradeCosts[save.rod];if(save.coins<cost){toast('还需要 '+(cost-save.coins)+' ● 才能强化鱼线');return}save.coins-=cost;save.rod++;safeSave();renderTools();renderTop();toast('鱼线已强化至 Lv. '+save.rod)});
-  $('soundBtn').addEventListener('click',()=>{snd=!snd;$('soundBtn').textContent=snd?'♫':'♫̸';$('soundBtn').setAttribute('aria-label',snd?'关闭声音':'开启声音');if(snd)playTone(690,.11)});
+  $('soundBtn').addEventListener('click',()=>{snd=!snd;$('soundBtn').textContent=snd?'🔔':'🔕';$('soundBtn').setAttribute('aria-label',snd?'关闭铃铛和音效':'开启铃铛和音效');if(snd)playBell(1)});
   if('serviceWorker'in navigator && location.protocol.startsWith('http')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
   renderWorld();renderControl();resize();window.addEventListener('resize',resize);if('ResizeObserver'in window)new ResizeObserver(resize).observe($('scene'));requestAnimationFrame(frame);
   // Support basic test automation without exposing gameplay controls in the UI.
