@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#214c51" />
+  <meta name="description" content="一竿钓遍世界。10 个国家、80 种鱼、单键钓鱼挑战，支持手机浏览和本地存档。" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="DRIFT 轻钓" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <title>DRIFT · 轻钓世界</title>
+  <style>
+:root{
+ --ink:#16373b;--muted:#7b8a81;--accent:#f7db9f;--cream:#f8f1e2;
+ font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+ color:#193d41;color-scheme:light;
+}
+*{box-sizing:border-box}html,body{padding:0;margin:0;width:100%;min-width:320px;height:100%;overflow:hidden}
+body{background:#3f858b}button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #ffd58d;outline-offset:2px}[hidden]{display:none!important}
+.shell,.layout,.game-column,.scene-card{width:100%;height:100%;min-height:100%;margin:0;padding:0;position:relative}
+.shell{height:100vh;height:100dvh;overflow:hidden}
+.layout{display:block}.game-column{position:relative}.scene-card{border:0;box-shadow:none;overflow:hidden;background:#8cbdba}
+.scene{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;isolation:isolate;user-select:none}
+.scene canvas{display:block;width:100%;height:100%}
+.scene:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,60,65,.03) 0,rgba(28,60,65,0) 31%,rgba(13,44,50,.04) 46%,rgba(12,38,42,.11) 64%,rgba(8,30,33,.68) 100%);pointer-events:none}
+.topbar{position:absolute;z-index:20;left:0;right:0;top:0;display:flex;align-items:center;gap:16px;justify-content:space-between;height:calc(72px + env(safe-area-inset-top));padding:env(safe-area-inset-top) max(25px,calc((100vw - 1160px)/2)) 0;background:linear-gradient(180deg,rgba(16,45,50,.32),rgba(16,45,50,0));color:white}
+.brand{display:flex;align-items:center;gap:9px;flex-shrink:0}.brand-icon{width:27px;height:27px;display:grid;place-items:center;border:2px solid currentColor;border-radius:50%}.brand-icon svg{width:19px;height:19px}.brand-name{font-family:Georgia,serif;font-size:22px;font-weight:700;letter-spacing:-1.1px;line-height:1}.brand-sub{font-size:8px;font-weight:700;letter-spacing:2.3px;opacity:.82;margin-top:4px}.brand-name span{color:inherit!important}
+.top-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.top-pill{white-space:nowrap;font-size:12px;font-weight:800;display:flex;gap:5px;align-items:center;color:#fff;padding:0 5px;text-shadow:0 1px 5px rgba(22,56,62,.15)}.top-pill b{font-size:14px;font-weight:800;min-width:10px;text-align:center;font-variant-numeric:tabular-nums}.top-pill .coin{font-size:15px;color:#ffe7a2}.top-pill .tiny{display:none}
+.hud-btn{width:39px;height:39px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.44);border-radius:50%;color:white;background:rgba(24,67,73,.25);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);font-size:19px;font-weight:600;transition:background .2s}
+.hud-btn:hover{background:rgba(24,67,73,.52)}.hud-btn svg{width:20px;height:20px}.sound-btn{font-size:16px}
+.world-btn{display:flex;gap:7px;align-items:center;flex-shrink:0;margin-left:18px;border:none;background:rgba(19,62,67,.25);backdrop-filter:blur(4px);border-radius:25px;padding:9px 12px;color:white;font-size:12px;font-weight:700;letter-spacing:.02em}
+.world-btn .down{font-size:9px;opacity:.7}.world-btn .world-flag{font-size:17px}
+.scene-head{position:absolute;z-index:4;left:max(25px,calc((100vw - 1160px)/2));top:calc(104px + env(safe-area-inset-top));padding:0;color:#143d44;text-shadow:0 1px 0 rgba(255,255,255,.1)}
+.location-name{display:flex;align-items:center;gap:8px;font-size:30px;line-height:1.2;font-family:Georgia,"Songti SC","Noto Serif CJK SC",serif;letter-spacing:1px;font-weight:700}
+.location-symbol{display:none!important}.location-sub{margin-top:7px;font-size:12px;font-family:system-ui,"PingFang SC",sans-serif;letter-spacing:2px;font-weight:500;color:rgba(14,59,65,.68)}.weather{display:none}
+.scene-top{position:absolute;z-index:4;top:calc(183px + env(safe-area-inset-top));left:max(25px,calc((100vw - 1160px)/2));font-size:12px;color:#265760;display:flex;align-items:center;gap:7px;opacity:.86}
+.dot{width:6px;height:6px;border-radius:50%;background:#db985c;box-shadow:0 0 0 4px rgba(255,255,255,.18)}
+.scene-alert{position:absolute;z-index:10;top:35%;left:50%;transform:translate(-50%,-50%);background:#f8db9c;color:#1b3d3e;box-shadow:0 7px 0 rgba(12,45,48,.12),0 18px 30px rgba(10,44,52,.22);font-size:21px;font-weight:900;letter-spacing:1px;padding:13px 23px;white-space:nowrap;opacity:0;transition:opacity .18s;pointer-events:none}
+.scene-alert.show{opacity:1}.scene-alert.golden{background:#f8bb65}
+.scene-bottom{position:absolute;z-index:3;right:max(26px,calc((100vw - 1160px)/2));bottom:calc(33px + env(safe-area-inset-bottom));font-size:11px;letter-spacing:1px;color:rgba(255,255,255,.70)}
+.action-panel{position:absolute;z-index:8;left:50%;transform:translateX(-50%);bottom:calc(48px + env(safe-area-inset-bottom));width:min(440px,calc(100% - 38px));display:flex;flex-direction:column;align-items:stretch;text-align:center;color:#fff}
+.status{margin-bottom:14px;display:flex;flex-direction:column;align-items:center;gap:5px;filter:drop-shadow(0 2px 5px rgba(0,20,22,.25))}.status h3{font-size:19px;font-weight:750;line-height:1.2;margin:0}.status p{margin:0;color:rgba(255,255,255,.78);font-size:12px;line-height:1.5}
+.status-pill{display:none}
+.action{width:100%;height:65px;border:none;border-radius:50px;background:#ffe1a5;color:#193b3c;font-size:19px;letter-spacing:1px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 7px 0 #cba877,0 15px 27px rgba(0,35,39,.24);touch-action:none;-webkit-user-select:none;user-select:none;transition:background .12s,transform .12s,box-shadow .12s}
+.action:not(:disabled):active,.action.reeling{transform:translateY(4px);box-shadow:0 3px 0 #cba877,0 11px 19px rgba(0,35,39,.24)}.action:disabled{background:#d0d9c8;color:#50645d;box-shadow:0 6px 0 #a8b4a9;cursor:wait}
+.action.bite{background:#ff996d;color:#482416;animation:call 0.65s alternate infinite}.action.bite:active{transform:translateY(4px)}.action .action-icon{font-size:24px;font-weight:700;line-height:1}
+@keyframes call{to{box-shadow:0 7px 0 #c77a5b,0 0 0 10px rgba(255,155,110,.12)}}
+.under-action{display:flex;justify-content:center;margin-top:17px}.help{font-size:11px;color:rgba(255,255,255,.82);line-height:1.5;letter-spacing:.1px}.inline-btn{display:none}
+.fight-panel{margin:0 0 19px;padding:15px 17px 13px;background:rgba(12,43,49,.66);border:1px solid rgba(240,245,234,.19);border-radius:13px;text-align:left;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);color:#fff}
+.meter-header{display:flex;justify-content:space-between;gap:7px;font-size:11px;font-weight:750;margin-bottom:8px}.meter-header span[style]{color:rgba(255,255,255,.55)!important}.meter-value{color:#fff!important;font-variant-numeric:tabular-nums}
+.meter-track{position:relative;height:8px;overflow:hidden;background:rgba(255,255,255,.18);border-radius:15px}.meter-track.tension{height:12px;background:linear-gradient(90deg,#728d8b 0 24%,#75be93 24% 66%,#f9d27f 66% 78%,#e67869 78% 100%)}
+.meter-fill{height:100%;background:#f7db9f;position:absolute;top:0;left:0;width:0;border-radius:10px}.meter-track.tension .meter-fill{height:16px;width:7px!important;background:#153a3e;border:2px solid white;top:-2px;transform:translateX(-3px);border-radius:4px}.safe-zone{display:none}
+.mini-meters{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:13px}.mini-meters .meter-track{height:7px}.mini-meters .meter-header{font-size:10px}.meter-fill.fish-energy{background:#f7a882}.meter-fill.land-progress{background:#e8dd9c}
+.result-layer{z-index:12;position:absolute;inset:0;background:rgba(9,41,45,.38);display:grid;place-items:center;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);padding:20px 20px 160px}
+.result{width:min(350px,100%);background:#fff5df;color:#173b3e;border:3px solid #294b49;outline:3px solid #ffe7b5;box-shadow:8px 9px 0 rgba(10,41,43,.28);padding:24px 20px 22px;text-align:center}
+.result-kicker{font-size:10px;letter-spacing:3px;font-weight:850;color:#b58a51}.result h2{font-family:Georgia,"Songti SC",serif;font-size:30px;letter-spacing:1px;margin:8px 0 3px}.result-fish{height:105px;display:grid;place-items:center}.result-fish svg{width:180px;height:100px;filter:drop-shadow(2px 4px 0 rgba(35,55,39,.1))}.result-summary{font-size:12px;line-height:1.7;color:#718077}.result-meta{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:13px}.result-meta span{font-size:12px;font-weight:800;border:1px solid #e4cfa9;padding:6px 9px;color:#36584f}.result-foot{font-size:11px;color:#a98d67;margin-top:12px}
+.backdrop{position:fixed;inset:0;background:rgba(7,33,38,.49);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:39;border:0;cursor:default}
+.country-sheet,.sidebar,.tools-card{position:fixed;z-index:41;background:#f8f1e3;color:#1e4546;box-shadow:0 20px 65px rgba(0,20,23,.22)}
+.country-sheet{width:min(440px,calc(100% - 30px));left:50%;top:50%;transform:translate(-50%,-50%);padding:25px 23px 22px;border:3px solid #375c5b;outline:4px solid #f8f1e3;max-height:calc(100dvh - 60px);display:flex;flex-direction:column}
+.sheet-header{display:flex;align-items:start;justify-content:space-between;gap:20px;margin-bottom:20px}.sheet-kicker{color:#a98e65;font-size:10px;font-weight:850;letter-spacing:2.6px}.sheet-header h2{font-family:Georgia,"Songti SC",serif;font-size:25px;margin:6px 0 0}.sheet-close{border:1px solid #b6c0ae;background:transparent;color:#245152;font-size:18px;width:34px;height:34px;display:grid;place-items:center}
+.countries{display:grid;grid-template-columns:1fr 1fr;gap:9px;overflow:auto;min-height:0;scrollbar-width:thin;padding:2px}
+.country{min-height:53px;background:#fdf8ed;color:#315453;border:1px solid #e0d7bf;text-align:left;display:flex;gap:12px;align-items:center;padding:12px;font-size:14px;font-weight:750;border-radius:2px}.country .flag{font-size:23px}.country.selected{background:#245457;color:#fdf5e7;border-color:#245457}.countries.locked .country:not(.selected){opacity:.45;cursor:not-allowed}
+.sidebar{right:0;top:0;bottom:0;width:min(480px,100%);display:flex;flex-direction:column;padding:calc(26px + env(safe-area-inset-top)) 24px 24px;overflow:hidden}
+.sidebar .sheet-header{margin-bottom:12px}.atlas-card{min-height:0;overflow:auto;flex:1}.atlas-top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d8d5c2;padding-bottom:12px}.section-eyebrow{font-size:10px;letter-spacing:2px;color:#a99475}.atlas-heading{margin:4px 0;font-size:21px;font-family:Georgia,"Songti SC",serif}.atlas-fraction{font-family:Georgia,serif;font-size:17px;font-weight:800}.atlas-sub{color:#7c8e82;font-size:12px;line-height:1.6;margin:11px 0 13px}.atlas-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.fish-card{position:relative;min-width:0;min-height:151px;background:#fffaef;border:1px solid #ddd8c4;padding:11px;overflow:hidden}.fish-card.found{border-color:#84a695}.fish-top{display:flex;justify-content:space-between;gap:5px;align-items:center}.fish-no{font-size:9px;color:#a59a82;letter-spacing:1px;font-weight:700}.rarity{font-size:10px;padding:2px 4px;font-weight:800;letter-spacing:.3px}.rarity.r0{color:#8d997f}.rarity.r1{color:#538d93}.rarity.r2{color:#8c78a9}.rarity.r3{color:#c18d46}.fish-thumb{height:76px;display:grid;place-items:center}.fish-thumb svg{width:100%;max-width:140px;height:72px}.fish-card:not(.found) .fish-thumb{filter:grayscale(1);opacity:.30}.fish-name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fish-detail{font-size:10px;color:#8a9686;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px}.mini-star{color:#e6ad58}
+.guide-card{flex-shrink:0;border-top:1px solid #d8d5c2;margin-top:12px;padding-top:12px}.guide-h{font-weight:800;font-size:12px}.guide-card p{font-size:11px;line-height:1.6;color:#78877a;margin:7px 0}.guide-steps{display:none}
+.tools-card{left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(420px,calc(100% - 30px));padding:22px;border:3px solid #345a57;outline:4px solid #f8f1e3}.tools-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.small-title{font-size:15px;font-weight:800}.tools-head span:last-child{font-size:11px!important;color:#8d9c8d!important}.equip-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.equip-chip{background:#fff9eb;border:1px solid #d2c9b1;padding:10px 12px;font-size:12px;font-weight:800;color:#446564}.equip-chip.active{background:#27575a;color:#ffedcd;border-color:#27575a}.equip-chip.locked{opacity:.76}.upgrade-row{margin-top:20px;padding-top:17px;border-top:1px solid #d7d0bc;display:flex;justify-content:space-between;gap:10px;align-items:center}.upgrade-row p{font-size:11px;color:#819185;margin:6px 0 0}.upgrade-btn{background:#245558;color:#fff6df;border:0;padding:12px 10px;font-weight:800;font-size:12px}.upgrade-btn:disabled{opacity:.45}.tools-close{display:block;border:0;background:transparent;color:#677e75;text-decoration:underline;text-underline-offset:4px;font-size:12px;margin:22px auto 0}
+.toast{position:fixed;z-index:65;bottom:calc(22px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,17px);opacity:0;pointer-events:none;background:#fff0ca;color:#254b4c;padding:12px 15px;font-size:12px;font-weight:700;max-width:calc(100% - 25px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:4px 4px 0 rgba(28,64,61,.4);transition:opacity .18s,transform .18s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:680px){
+ .topbar{padding-left:17px;padding-right:15px;gap:6px;height:calc(62px + env(safe-area-inset-top))}.brand{gap:6px}.brand-icon{width:23px;height:23px}.brand-icon svg{width:16px;height:16px}.brand-name{font-size:17px;letter-spacing:-1px}.brand-sub{font-size:6px;letter-spacing:1.2px;margin-top:2px}
+ .world-btn{font-size:11px;margin-left:8px;padding:7px 8px;gap:5px}.world-btn .world-flag{font-size:15px}
+ .top-right{gap:4px}.top-pill{padding:0 2px;font-size:10px}.top-pill b{font-size:12px}.hud-btn{width:32px;height:32px;font-size:16px}.hud-btn svg{width:18px;height:18px}.sound-btn{display:none}
+ .scene-head{left:22px;top:calc(94px + env(safe-area-inset-top))}.location-name{font-size:25px}.location-sub{font-size:11px;margin-top:5px}.scene-top{left:22px;top:calc(172px + env(safe-area-inset-top));font-size:11px}.scene-bottom{display:none}
+ .action-panel{bottom:calc(27px + env(safe-area-inset-bottom));width:calc(100% - 46px)}.action{height:61px;font-size:18px}.status h3{font-size:17px}.status p{font-size:11px}.status{margin-bottom:13px}.under-action{margin-top:15px}.help{font-size:10px}.result-layer{padding:10px 15px 145px}.result{width:min(320px,100%);padding:18px 15px 16px}.result h2{font-size:25px}.result-fish{height:90px}.result-fish svg{height:87px}
+ .sidebar{padding:calc(24px + env(safe-area-inset-top)) 16px 18px}
+}
+@media(max-width:370px){.brand-sub{display:none}.topbar{gap:3px}.top-pill:nth-child(2){display:none}.world-btn{margin-left:5px}.scene-head{top:calc(90px + env(safe-area-inset-top))}.scene-top{top:calc(164px + env(safe-area-inset-top))}.action-panel{bottom:calc(19px + env(safe-area-inset-bottom))}.result-layer{padding-bottom:120px}}
+@media(max-height:650px){.scene-head{top:calc(82px + env(safe-area-inset-top))}.scene-top{top:calc(150px + env(safe-area-inset-top))}.action-panel{bottom:calc(14px + env(safe-area-inset-bottom))}.status{margin-bottom:8px}.under-action{margin-top:9px}.fight-panel{margin-bottom:10px;padding:11px 13px}.action{height:54px}.result-layer{padding-bottom:110px}.result-fish{height:70px}.result-fish svg{height:69px}.result{padding:12px 14px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand" aria-label="DRIFT 轻钓"><div class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M17 5v14a6.5 6.5 0 1 1-6.5-6.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="m8 15 2.5-2.5 2.5 2.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="brand-name">DRIFT.</div><div class="brand-sub">轻钓世界</div></div></div>
+      <button id="worldBtn" class="world-btn" type="button" aria-controls="countrySheet" aria-expanded="false"><span id="worldFlag" class="world-flag">🇨🇳</span><span id="worldName">中国</span><span class="down">▾</span></button>
+      <div class="top-right">
+        <span class="top-pill"><span class="coin">●</span><b id="coinsTop">0</b><span class="tiny">金币</span></span>
+        <span class="top-pill">🎣 <b id="catchesTop">0</b><span class="tiny">尾</span></span>
+        <button id="atlasBtn" class="hud-btn" type="button" aria-label="打开鱼类图鉴" aria-controls="atlasPanel" aria-expanded="false" title="鱼类图鉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.25c-2.5-2.2-6.5-2.2-9-.5v13c2.5-1.7 6.5-1.7 9 .5m0-13c2.5-2.2 6.5-2.2 9-.5v13c-2.5-1.7-6.5-1.7-9 .5m0-13v13"/></svg></button>
+        <button id="toolToggle" class="hud-btn" type="button" aria-label="鱼饵和装备" aria-controls="toolsCard" aria-expanded="false" title="装备">⚙</button>
+        <button id="soundBtn" class="hud-btn sound-btn" type="button" aria-label="开启声音" title="切换声音">♫̸</button>
+      </div>
+    </header>
+    <main class="layout">
+      <section class="game-column" aria-label="钓鱼游戏">
+        <div class="scene-card">
+          <div class="scene" id="scene">
+            <canvas id="lakeCanvas" aria-label="动态钓鱼场景" role="img"></canvas>
+            <div class="scene-head"><div class="location-name"><span class="location-symbol" id="locationSymbol">🏞️</span><span id="locationTitle">中国 · 江南湖畔</span></div><div class="location-sub" id="locationSub">淡水 · 清晨微风</div><span class="weather" id="weather">☀️ 适合垂钓</span></div>
+            <div class="scene-top"><span class="dot" id="liveDot"></span><span id="sceneState">湖面平静 · 等待抛竿</span></div>
+            <div class="scene-alert" id="sceneAlert" aria-live="polite"></div>
+            <div class="scene-bottom" id="sceneBottom">🇨🇳 · 8 种鱼</div>
+            <div class="result-layer" id="resultLayer" hidden><div class="result" aria-live="polite"><div class="result-kicker" id="resultKicker">NICE CATCH</div><h2 id="resultTitle">收获一尾！</h2><div class="result-fish" id="resultFish"></div><div class="result-summary" id="resultSummary"></div><div class="result-meta" id="resultMeta"></div><div class="result-foot" id="resultFoot">点击下方按钮，再钓一竿</div></div></div>
+          </div>
+          <div class="action-panel">
+            <div class="status"><h3 id="statusTitle">准备好了吗？</h3><p id="statusDesc">点击开始钓鱼</p><div id="statusBadge" class="status-pill">● 自由垂钓</div></div>
+            <div class="fight-panel" id="fightPanel" hidden>
+              <div class="meter-header"><span>鱼线拉力 <span style="color:#9cb6aa">· 别超过红区</span></span><span class="meter-value" id="tensionText">35%</span></div>
+              <div class="meter-track tension"><span class="safe-zone"></span><span class="meter-fill" id="tensionFill"></span></div>
+              <div class="mini-meters"><div><div class="meter-header"><span>鱼的体力</span><span class="meter-value" id="staminaText">100%</span></div><div class="meter-track"><span class="meter-fill fish-energy" id="staminaFill"></span></div></div><div><div class="meter-header"><span>收线进度</span><span class="meter-value" id="progressText">0%</span></div><div class="meter-track"><span class="meter-fill land-progress" id="progressFill"></span></div></div></div>
+            </div>
+            <button id="actionBtn" class="action" type="button"><span class="action-icon">↗</span><span id="actionLabel">抛下一竿</span></button>
+            <div class="under-action"><span id="helpText" class="help">咬钩点击 · 按住收线 · 松开放线</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <button id="overlayShade" type="button" class="backdrop" aria-label="关闭面板" hidden></button>
+    <section id="countrySheet" class="country-sheet" aria-label="选择垂钓国家" hidden>
+      <div class="sheet-header"><div><div class="sheet-kicker">CHOOSE YOUR WATER</div><h2>下一站，去哪儿？</h2></div><button id="closeCountries" type="button" class="sheet-close" aria-label="关闭国家选择">×</button></div>
+      <nav id="countryList" class="countries" aria-label="选择垂钓国家"></nav>
+    </section>
+    <div id="toolsCard" class="tools-card" hidden>
+      <div class="tools-head"><span class="small-title">钓具箱</span><span>换饵、升级鱼线</span></div>
+      <div id="baitOptions" class="equip-chips"></div>
+      <div class="upgrade-row"><div><span class="small-title" id="rodTitle">鱼线 · Lv. 1</span><p id="rodDesc">升级可提高鱼线承受拉力</p></div><button type="button" id="upgradeBtn" class="upgrade-btn">强化 · 90 ●</button></div>
+      <button type="button" class="tools-close" id="closeTools">返回钓场</button>
+    </div>
+    <aside id="atlasPanel" class="sidebar" aria-label="世界鱼类图鉴" hidden>
+      <div class="sheet-header"><div><div class="sheet-kicker">FIELD NOTES</div><h2>渔获手册</h2></div><button type="button" class="sheet-close" id="closeAtlas" aria-label="关闭图鉴">×</button></div>
+      <section class="atlas-card"><div class="atlas-top"><div><div class="section-eyebrow">COLLECTION</div><h2 class="atlas-heading">世界鱼类图鉴</h2></div><span class="atlas-fraction" id="atlasFraction">0 / 8</span></div><p class="atlas-sub" id="atlasSub">在中国水域发现的鱼。钓上它们，点亮专属图鉴。</p><div class="atlas-list" id="atlasList"></div></section>
+      <section class="guide-card"><div class="guide-h">钓鱼提示</div><p>咬钩时轻点。搏鱼时按住收线、松手放线；鱼线太紧会断，太松鱼会跑。</p></section>
+    </aside>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+(() => {
+  // Fish: [name, rarity(0..3), minimum length cm, maximum length cm, silhouette, color]
+  const F = (n,r,a,b,s,c) => ({ n,r,a,b,s,c });
+  const worlds = [
+    {id:'cn', flag:'🇨🇳', name:'中国', place:'江南湖畔', desc:'淡水 · 清晨微风', icon:'🏞️', sky:['#e5efdd','#b7d7cb'], water:['#79b5a4','#215e61'], hills:'#83b09d', fish:[F('鲫鱼',0,14,37,'carp','#bca86d'),F('鲤鱼',0,25,92,'carp','#d6a86e'),F('黄颡鱼',0,14,40,'cat','#b2a35d'),F('翘嘴鲌',1,25,95,'trout','#9dbac0'),F('草鱼',1,35,125,'carp','#8ba06f'),F('鳜鱼',1,25,77,'bass','#a4a779'),F('青鱼',2,57,168,'carp','#68877b'),F('巨型鳙鱼',3,95,205,'carp','#b3afb0')]},
+    {id:'jp', flag:'🇯🇵', name:'日本', place:'濑户内海', desc:'海钓 · 暖阳微浪', icon:'⛩️', sky:['#f6ddcd','#bbd6d0'], water:['#77b7b4','#1c6570'], hills:'#8fafa2', fish:[F('竹荚鱼',0,15,42,'tuna','#91aeb7'),F('鲭鱼',0,23,55,'tuna','#668da6'),F('黑鲷',0,22,63,'bass','#899394'),F('香鱼',1,14,33,'trout','#98ac8e'),F('真鲷',1,28,92,'bass','#e3a7a1'),F('鰤鱼',1,50,138,'tuna','#aeb59a'),F('樱鳟',2,35,83,'trout','#d28d8e'),F('蓝鳍金枪鱼',3,115,285,'tuna','#557e9d')]},
+    {id:'us', flag:'🇺🇸', name:'美国', place:'五大湖区', desc:'湖泊 · 水草浅滩', icon:'🌲', sky:['#e4eada','#b3d6c6'], water:['#83b9a5','#376a68'], hills:'#709d8c', fish:[F('蓝鳃太阳鱼',0,12,32,'bass','#8d9fa0'),F('大口黑鲈',0,26,78,'bass','#739778'),F('斑点叉尾鮰',0,30,106,'cat','#a3a6ae'),F('虹鳟',1,25,88,'trout','#9fa8ae'),F('条纹鲈',1,40,115,'bass','#a5b5ad'),F('北美狗鱼',1,43,130,'trout','#719680'),F('帝王鲑',2,66,150,'trout','#b08a8a'),F('大西洋大海鲢',3,105,238,'tuna','#a9c7ce')]},
+    {id:'no', flag:'🇳🇴', name:'挪威', place:'峡湾深处', desc:'冷水 · 峡湾海钓', icon:'🏔️', sky:['#e7e9ed','#a8c3c9'], water:['#7fabb5','#23586d'], hills:'#8099a8', fish:[F('大西洋鲱',0,18,44,'tuna','#a7bcc1'),F('鲭鱼',0,25,61,'tuna','#6e97a4'),F('黑线鳕',0,25,92,'trout','#869ea1'),F('大西洋鳕',1,42,149,'bass','#a7a68c'),F('赛鱼',1,40,120,'trout','#879e9c'),F('大西洋鲑',1,52,142,'trout','#bc9995'),F('大比目鱼',2,78,250,'flat','#a1a0a3'),F('欧洲狼鱼',3,95,167,'bass','#6b9291')]},
+    {id:'br', flag:'🇧🇷', name:'巴西', place:'亚马孙河', desc:'热带 · 密林河道', icon:'🌴', sky:['#e7eec8','#c3d5a8'], water:['#86bda0','#4d8269'], hills:'#61937c', fish:[F('食人鲳',0,15,38,'bass','#a3a5a0'),F('斑点鲶',0,22,95,'cat','#9d9a7e'),F('银龙鱼',0,39,105,'eel','#b6c6bf'),F('孔雀鲈',1,30,95,'bass','#c4b16e'),F('坦巴基鱼',1,42,116,'carp','#798d78'),F('黄金河虎',1,40,121,'trout','#d4ac59'),F('巨型鲶鱼',2,105,230,'cat','#8d9793'),F('巨骨舌鱼',3,130,300,'eel','#a78f86')]},
+    {id:'au', flag:'🇦🇺', name:'澳大利亚', place:'昆士兰海岸', desc:'海湾 · 明亮海风', icon:'🪸', sky:['#f6e2c5','#bfdcda'], water:['#82c9c1','#2b8588'], hills:'#b4b8a5', fish:[F('平头鱼',0,18,65,'flat','#b6ae93'),F('金鲈',0,23,67,'bass','#cab36d'),F('红鲷',0,28,92,'bass','#df9988'),F('金目鲈',1,35,130,'bass','#a5b8ac'),F('澳洲鲑',1,37,96,'trout','#a1b7b2'),F('黄尾鰤',1,55,148,'tuna','#96aeb2'),F('墨累鳕',2,75,164,'bass','#799f86'),F('巨型石斑鱼',3,112,240,'bass','#a09078')]},
+    {id:'ca', flag:'🇨🇦', name:'加拿大', place:'落基山冰湖', desc:'冷水 · 松林山湖', icon:'🍁', sky:['#e8e7e5','#b5d1cf'], water:['#89bdc0','#2c7082'], hills:'#779e9a', fish:[F('黄鲈',0,15,37,'bass','#c0b26f'),F('小口黑鲈',0,24,66,'bass','#9c9e74'),F('玻璃梭鲈',0,27,86,'bass','#b8af90'),F('虹鳟',1,24,88,'trout','#b5a7ae'),F('北方狗鱼',1,42,132,'trout','#789c83'),F('湖鳟',1,44,119,'trout','#868f98'),F('帝王鲑',2,72,146,'trout','#b49893'),F('太平洋大比目鱼',3,105,260,'flat','#a5a6ad')]},
+    {id:'nz', flag:'🇳🇿', name:'新西兰', place:'南岛蓝湾', desc:'海湾 · 高山清流', icon:'⛰️', sky:['#e2ebed','#b3d1dd'], water:['#7fc0c6','#296c83'], hills:'#809db0', fish:[F('蓝鳕',0,20,55,'bass','#a0abb5'),F('笛鲷',0,26,88,'bass','#d8a194'),F('褐鳟',0,32,95,'trout','#a29778'),F('虹鳟',1,29,82,'trout','#b59baa'),F('黄尾鰤',1,50,145,'tuna','#92afb4'),F('新西兰长鳍鳗',1,48,130,'eel','#738b87'),F('帝王鲑',2,58,145,'trout','#aa9190'),F('蓝枪鱼',3,145,330,'marlin','#5e9dc0')]},
+    {id:'th', flag:'🇹🇭', name:'泰国', place:'湄南河畔', desc:'热带 · 静水回湾', icon:'🪷', sky:['#f3e7c7','#bdd5b0'], water:['#a4c2a1','#587e69'], hills:'#91ab8b', fish:[F('罗非鱼',0,17,43,'bass','#9eaa95'),F('攀鲈',0,12,28,'bass','#a9a583'),F('爪哇鲃',0,25,67,'carp','#bbc09f'),F('线鳢',1,24,82,'trout','#858e7b'),F('巨型丝足鲈',1,28,74,'carp','#adb0a5'),F('巨型乌鳢',1,52,135,'trout','#748578'),F('湄公河巨鲶',2,95,215,'cat','#9c9e9b'),F('暹罗巨鲤',3,105,285,'carp','#b5a68b')]},
+    {id:'id', flag:'🇮🇩', name:'印度尼西亚', place:'巴厘岛外海', desc:'热带 · 珊瑚礁群', icon:'🌊', sky:['#fae1bc','#b8dbd4'], water:['#89c8c5','#227987'], hills:'#91b4a5', fish:[F('竹荚鱼',0,16,48,'tuna','#a3b2bd'),F('马鲛鱼',0,34,116,'tuna','#96b3bc'),F('红鲷',0,29,93,'bass','#d7a59a'),F('石斑鱼',1,28,113,'bass','#b1a08b'),F('鬼头刀',1,45,145,'tuna','#88bba3'),F('黄鳍金枪鱼',1,75,188,'tuna','#879fb0'),F('巨鲹',2,63,167,'tuna','#a5bbc2'),F('旗鱼',3,135,300,'marlin','#5e99bd')]}
+  ];
+  const rareNames=['常见','少见','稀有','传说'];
+  const STORAGE='drift-fishing-v1';
+  const fresh=()=>({country:'cn',coins:0,total:0,streak:0,bestStreak:0,rod:1,baits:['worm'],bait:'worm',collection:{},history:[]});
+  function load(){try{let x=JSON.parse(localStorage.getItem(STORAGE));if(x&&typeof x==='object') return {...fresh(),...x,baits:Array.isArray(x.baits)?x.baits:['worm'],collection:x.collection||{},history:Array.isArray(x.history)?x.history:[]};}catch{}return fresh()}
+  let save=load();if(!worlds.some(w=>w.id===save.country))save.country='cn';
+  const $=id=>document.getElementById(id);
+  const $countryList=$('countryList'),$atlasList=$('atlasList'),$action=$('actionBtn');
+  const canvas=$('lakeCanvas'),ctx=canvas.getContext('2d');
+  let W=0,H=0,dpr=1, state='idle',target=null, golden=false, waitLeft=0,biteLeft=0, fight=null, reeling=false, lastFrame=0, alertUntil=0,alertText='',alertGold=false, toastTimer=0, snd=false, audio=null, waveSpawn=0;
+  const world=()=>worlds.find(w=>w.id===save.country)||worlds[0];
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  const range=(a,b)=>Math.random()*(b-a)+a;
+  const keyOf=(wid,fish)=>wid+'/'+fish.n;
+  const fmt=n=>Math.round(n).toLocaleString('zh-CN');
+  const safeSave=()=>{try{localStorage.setItem(STORAGE,JSON.stringify(save))}catch{}};
+  const rarityClass=r=>'r'+r;
+  function fishSVG(f){
+    const light=f.c,cat=f.s==='cat',eel=f.s==='eel',flat=f.s==='flat',marlin=f.s==='marlin',tuna=f.s==='tuna';
+    let body=eel?'M19 43 Q45 19 107 34 Q135 39 156 29 Q138 53 103 51 Q46 63 19 43 Z':flat?'M27 48 Q48 17 102 27 Q128 36 138 44 Q122 64 93 66 Q45 76 27 48 Z':cat?'M22 43 Q54 16 102 28 Q125 33 139 44 Q120 59 96 63 Q46 67 22 43 Z':tuna?'M24 43 Q60 22 107 32 Q125 36 137 43 Q119 51 104 54 Q58 62 24 43 Z':'M23 43 Q53 12 102 28 Q125 33 140 43 Q118 58 102 61 Q54 71 23 43 Z';
+    let tail=eel?'<path d="M144 33 Q161 27 165 44 Q157 53 145 50Z"/>':marlin?'<path d="M135 42 L164 13 L157 41 L166 65 Z"/>':'<path d="M132 43 L165 18 Q155 43 165 68 Z"/>';
+    return `<svg viewBox="0 0 185 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="${light}" stroke="rgba(46,75,69,.22)" stroke-width="1">${tail}<path d="M63 31 L78 ${tuna?7:14} L99 30Z"/><path d="M74 55 L94 77 L104 58Z"/>${body}${marlin?'<path d="M18 42 L2 19 L25 37Z"/>':''}</g><path d="M29 44 Q66 51 123 43" stroke="rgba(255,255,255,.43)" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M33 51 Q75 66 120 50" stroke="rgba(22,55,61,.10)" stroke-width="8" fill="none" stroke-linecap="round"/>${cat?'<path d="M23 48 Q8 59 5 50 M30 47 Q7 36 4 39" stroke="#7b8e8e" stroke-width="1.6" fill="none"/>':''}<circle cx="40" cy="37" r="3" fill="#243e3d"/><circle cx="40.6" cy="36.1" r=".9" fill="#fff"/><path d="M23 45 Q27 47 31 45" stroke="#40635b" stroke-width="1.1" fill="none"/></svg>`
+  }
+  function renderCountries(){
+    $countryList.innerHTML=worlds.map(w=>`<button type="button" class="country ${w.id===save.country?'selected':''}" data-country="${w.id}" aria-pressed="${w.id===save.country}"><span class="flag">${w.flag}</span><span>${w.name}</span></button>`).join('');
+    $countryList.classList.toggle('locked',state==='waiting'||state==='bite'||state==='fight');
+  }
+  function renderAtlas(){
+    const w=world(),found=w.fish.filter(f=>save.collection[keyOf(w.id,f)]).length;
+    $('atlasFraction').textContent=found+' / '+w.fish.length;
+    $('atlasSub').textContent=`${w.name}水域 · ${w.fish.length} 种鱼等待发现。已收录 ${found} 种。`;
+    $atlasList.innerHTML=w.fish.map((f,i)=>{let rec=save.collection[keyOf(w.id,f)];return `<div class="fish-card ${rec?'found':''}" title="${f.n} · ${rareNames[f.r]}"><div class="fish-top"><span class="fish-no">NO. ${String(i+1).padStart(2,'0')}</span><span class="rarity ${rarityClass(f.r)}">${rareNames[f.r]}</span></div><div class="fish-thumb">${fishSVG(f)}</div><div class="fish-name">${f.n} ${rec&&f.r>=2?'<span class="mini-star">✦</span>':''}</div><div class="fish-detail">${rec?`已钓 ${rec.count} 尾 · 最长 ${rec.best} cm`:'尚未收录 · '+f.a+'–'+f.b+' cm'}</div></div>`}).join('');
+  }
+  const baitTypes=[{id:'worm',title:'🪱 蚯蚓',desc:'免费',cost:0,mult:1},{id:'lure',title:'✨ 拟饵',desc:'稀有鱼 ×1.7',cost:140,mult:1.7},{id:'shrimp',title:'🦐 海虾',desc:'稀有鱼 ×2.5',cost:340,mult:2.5}];
+  const upgradeCosts=[0,90,230,500];
+  function renderTools(){
+    $('baitOptions').innerHTML=baitTypes.map(b=>`<button type="button" class="equip-chip ${save.bait===b.id?'active':''} ${!save.baits.includes(b.id)?'locked':''}" data-bait="${b.id}">${b.title} ${save.baits.includes(b.id)?(save.bait===b.id?'✓':b.desc):'· '+b.cost+' ●'}</button>`).join('');
+    $('rodTitle').textContent='鱼线 · Lv. '+save.rod;
+    $('rodDesc').textContent=save.rod>=4?'已经是最强鱼线了':'等级越高，鱼线越不易被拉断';
+    const cost=upgradeCosts[save.rod];const b=$('upgradeBtn');b.disabled=save.rod>=4;b.textContent=save.rod>=4?'已满级':'强化 · '+cost+' ●';
+  }
+  function renderTop(){ $('coinsTop').textContent=fmt(save.coins);$('catchesTop').textContent=fmt(save.total); }
+  function renderWorld(){let w=world();$('worldFlag').textContent=w.flag;$('worldName').textContent=w.name;$('locationSymbol').textContent=w.icon;$('locationTitle').textContent=w.name+' · '+w.place;$('locationSub').textContent=w.desc;$('sceneBottom').textContent=w.flag+' · '+w.fish.length+' 种鱼';renderCountries();renderAtlas();renderTop();renderTools();}
+  function toast(text){let el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200)}
+  function alertScene(text,seconds=1.35,isGold=false){alertText=text;alertUntil=performance.now()/1000+seconds;alertGold=isGold;const e=$('sceneAlert');e.textContent=text;e.className='scene-alert show'+(isGold?' golden':'');}
+  function playTone(freq=440,dur=.13,type='sine',gain=.06){if(!snd)return;try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();let osc=audio.createOscillator(),vol=audio.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,audio.currentTime);vol.gain.setValueAtTime(gain,audio.currentTime);vol.gain.exponentialRampToValueAtTime(.001,audio.currentTime+dur);osc.connect(vol).connect(audio.destination);osc.start();osc.stop(audio.currentTime+dur)}catch{}}
+  function vib(x){try{navigator.vibrate?.(x)}catch{}}
+  function chooseFish(){const w=world(),mult=baitTypes.find(b=>b.id===save.bait)?.mult||1;let weights=w.fish.map(f=>[14,7,2.7,.85][f.r]*((f.r>=2)?mult:1)*(golden&&f.r>=2?2.2:1));let n=Math.random()*weights.reduce((a,b)=>a+b,0);for(let i=0;i<w.fish.length;i++){n-=weights[i];if(n<=0)return w.fish[i]}return w.fish[0]}
+  function cast(){if(state!=='idle'&&state!=='result')return;state='waiting';golden=Math.random()<.1;target=chooseFish();waitLeft=range(1.7,4.5);$('resultLayer').hidden=true;reeling=false;alertScene('嗖——鱼钩入水',1);playTone(260,.13,'triangle');renderControl();renderCountries();}
+  function hook(){if(state!=='bite')return;state='fight';reeling=false;const d=[.88,1,1.23,1.58][target.r];fight={tension:35,stamina:100,progress:0,burstLeft:0,nextBurst:range(1.8,3.6),dangerTime:0,looseTime:0,seconds:0,d,highest:0};vib(35);playTone(520,.1);setTimeout(()=>playTone(700,.16),110);alertScene(target.r>=2?'大鱼！握紧鱼竿！':'中鱼！稳住鱼线！',1.6,target.r===3);renderControl();}
+  function finish(success,why=''){if(state!=='fight'&&state!=='bite')return;reeling=false;$action.classList.remove('reeling');state='result';$('fightPanel').hidden=true;let r=$('resultLayer');r.hidden=false;let f=target;
+    if(success){let length=Math.round(range(f.a,f.b)*10)/10,weight=(length/37)**2.8 * (f.s==='eel'?.5:f.s==='flat'?1.15:1);weight=Math.max(.1,Math.round(weight*10)/10);let reward=Math.round([14,28,72,210][f.r]+length/8+Math.min(save.streak,8)*3)*(golden?2:1);reward=Math.round(reward);save.coins+=reward;save.total++;save.streak++;save.bestStreak=Math.max(save.bestStreak,save.streak);let k=keyOf(save.country,f),old=save.collection[k];save.collection[k]={count:(old?.count||0)+1,best:Math.max(length,old?.best||0),heaviest:Math.max(weight,old?.heaviest||0)};save.history.unshift({country:save.country,fish:f.n,length,weight,time:Date.now()});save.history=save.history.slice(0,30);safeSave();renderAtlas();renderTop();renderTools();$('resultKicker').textContent=f.r===3?'✦ LEGENDARY CATCH ✦':f.r===2?'RARE CATCH':'NICE CATCH';$('resultTitle').textContent=f.n;$('resultFish').innerHTML=fishSVG(f);$('resultSummary').textContent=(old?'又一次遇见老朋友。':'首次发现！已收录进鱼类图鉴。')+(f.r===3?' 传说级巨物！':'');$('resultMeta').innerHTML=`<span>${length} cm</span><span>${weight} kg</span><span>+${reward} ●</span>`;$('resultFoot').textContent='🔥 连续成功 '+save.streak+' 次 · 点击下方继续';playTone(580,.16);setTimeout(()=>playTone(830,.17),140);setTimeout(()=>playTone(1020,.25),300);vib([60,40,80,50,120]);}
+    else{save.streak=0;safeSave();$('resultKicker').textContent='THE ONE THAT GOT AWAY';$('resultTitle').textContent='鱼儿逃走了';$('resultFish').innerHTML='<div style="font-size:58px;opacity:.62">〰️</div>';$('resultSummary').textContent=why||'别灰心，下次会更接近。';$('resultMeta').innerHTML='<span>连胜已中断</span><span>再试一竿 ↗</span>';$('resultFoot').textContent='试着让拉力保持在绿色区域';playTone(180,.28,'sine');vib(110);}
+    renderControl();renderCountries();
+  }
+  function renderControl(){const a=$action,l=$('actionLabel'),title=$('statusTitle'),desc=$('statusDesc'),badge=$('statusBadge'),help=$('helpText'),scene=$('sceneState');a.disabled=false;a.className='action';badge.className='status-pill';$('fightPanel').hidden=state!=='fight';
+    if(state==='idle'){l.textContent='抛下一竿';a.querySelector('.action-icon').textContent='↗';title.textContent='风平浪静';desc.textContent='听听水声，抛下这一竿。';badge.textContent='● 自由垂钓';scene.textContent='湖面平静 · 等待抛竿';help.textContent='咬钩时点击 · 按住收线 · 松开放线';}
+    if(state==='waiting'){l.textContent='等待咬钩…';a.querySelector('.action-icon').textContent='◌';a.disabled=true;title.textContent='浮漂静静漂着…';desc.textContent='留意水面，随时准备提竿。';badge.textContent='● 静候鱼讯';scene.textContent='浮标轻轻摇晃 · 水下有动静';help.textContent='耐心等待，浮漂下沉时立刻点击';}
+    if(state==='bite'){l.textContent='现在！立即提竿';a.querySelector('.action-icon').textContent='⚡';a.classList.add('bite');title.textContent=golden?'黄金咬口！':'上鱼了！';desc.textContent='时间有限！立即点击按钮，别让鱼逃走。';badge.textContent=(golden?'✦ ':'● ')+biteLeft.toFixed(1)+' 秒';badge.classList.add(golden?'golden':'danger');scene.textContent='浮标猛地沉下！';help.textContent='动作快一点！';}
+    if(state==='fight'){l.textContent='按住收线 · 松开放线';a.querySelector('.action-icon').textContent='✦';title.textContent='稳住！它在挣扎';desc.textContent='按住收线，松开放线。';badge.textContent='● 正在搏鱼';scene.textContent='鱼线绷紧 · 与大鱼较量';help.textContent='留心拉力，别让它扯断鱼线';renderMeters();}
+    if(state==='result'){l.textContent='再钓一竿';a.querySelector('.action-icon').textContent='↗';title.textContent='下一竿，会不会是传说？';desc.textContent='收好渔获，继续探索 '+world().name+' 的水域。';badge.textContent='● 可以继续';scene.textContent='河面恢复平静';help.textContent='也可以换国家、选鱼饵或升级鱼线。';}
+  }
+  function renderMeters(){if(!fight)return;let f=fight;$('tensionText').textContent=Math.round(f.tension)+'%';$('tensionFill').style.left=f.tension+'%';$('staminaText').textContent=Math.round(f.stamina)+'%';$('staminaFill').style.width=f.stamina+'%';$('progressText').textContent=Math.round(f.progress)+'%';$('progressFill').style.width=f.progress+'%';$('actionBtn').classList.toggle('reeling',reeling);if(f.burstLeft>0){$('statusBadge').classList.add('danger');$('statusBadge').textContent='⚠ 大鱼冲刺';}else{$('statusBadge').classList.remove('danger');$('statusBadge').textContent='● 正在搏鱼';}}
+  function advance(dt){if(state==='waiting'){waitLeft-=dt;if(waitLeft<=0){state='bite';biteLeft=golden?2.8:3.5;alertScene(golden?'✨ 黄金咬口！快提竿！':'⚡ 有鱼咬钩！',2,golden);vib([100,50,160]);playTone(720,.15);setTimeout(()=>playTone(960,.16),160);renderControl();}}
+    else if(state==='bite'){biteLeft-=dt;$('statusBadge').textContent=(golden?'✦ ':'● ')+Math.max(0,biteLeft).toFixed(1)+' 秒';if(biteLeft<=0)finish(false,'提竿慢了一步，鱼已经游走了。');}
+    else if(state==='fight'){let f=fight;f.seconds+=dt;f.nextBurst-=dt;if(f.nextBurst<=0){f.burstLeft=range(.8,1.6)*(.86+f.d*.14);f.nextBurst=range(2.6,5)/Math.pow(f.d,.23);alertScene(f.d>1.3?'⚠ 巨物发力！快松手！':'⚠ 大鱼猛冲！小心拉力！',1.05);vib(55);}
+      const burst=f.burstLeft>0;if(burst)f.burstLeft=Math.max(0,f.burstLeft-dt);
+      let force=burst?(f.d*18):(-3.0+f.d*1.8);
+      f.tension+=dt*((reeling?31: -38)+force);f.tension=clamp(f.tension,0,100);
+      const inZone=f.tension>=24&&f.tension<=67;
+      if(reeling){const efficiency=inZone?1:f.tension<24?.4:.17;f.stamina=Math.max(0,f.stamina-dt*(12.3/f.d)*efficiency);f.progress=clamp(f.progress+dt*(16.5/f.d)*efficiency*(1+(100-f.stamina)/190)-(burst?dt*2:0),0,100);}
+      else{f.progress=clamp(f.progress-dt*(burst?8.3:2.5)*f.d,0,100);f.stamina=clamp(f.stamina+dt*.5,0,100)}
+      let dangerThreshold=88+(save.rod-1)*2.5;f.dangerTime=f.tension>dangerThreshold?f.dangerTime+dt:Math.max(0,f.dangerTime-dt*.95);
+      f.looseTime=f.tension<7?f.looseTime+dt:Math.max(0,f.looseTime-dt*2);
+      if(f.dangerTime>.48+.08*(save.rod-1)){finish(false,'鱼线绷得太紧，啪的一声断掉了！');return}
+      if(f.looseTime>2.9){finish(false,'鱼线松得太久，鱼儿挣脱了鱼钩。');return}
+      if(f.seconds>95){finish(false,'搏斗太久，鱼儿最终游走了。');return}
+      if(f.progress>=99.9){finish(true);return}
+      renderMeters();
+    }
+  }
+  function resize(){const b=canvas.getBoundingClientRect();W=b.width;H=b.height;dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.max(1,Math.round(W*dpr));canvas.height=Math.max(1,Math.round(H*dpr));ctx.setTransform(dpr,0,0,dpr,0,0)}
+  function poly(points,color){ctx.fillStyle=color;ctx.beginPath();points.forEach((p,i)=>{if(i===0)ctx.moveTo(p[0],p[1]);else ctx.lineTo(p[0],p[1])});ctx.closePath();ctx.fill()}
+  function fishShape(x,y,scale,color,dir=1,alpha=1,fin=false){ctx.save();ctx.translate(x,y);ctx.scale(scale*dir,scale);ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(0,0,26,12,0,0,Math.PI*2);ctx.fill();poly([[20,0],[42,-13],[37,0],[42,13]],color);poly([[-7,-8],[4,-19],[15,-6]],color);poly([[-4,8],[10,18],[17,9]],color);ctx.fillStyle='#173f47';ctx.beginPath();ctx.arc(-17,-2,1.5,0,Math.PI*2);ctx.fill();if(fin){ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-15,5);ctx.quadraticCurveTo(0,11,17,3);ctx.stroke();}ctx.restore()}
+  function renderScene(t){if(!W||!H)return;const w=world(),h=H,c=ctx;const hor=h*.48;let sky=c.createLinearGradient(0,0,0,hor);sky.addColorStop(0,w.sky[0]);sky.addColorStop(1,w.sky[1]);c.fillStyle=sky;c.fillRect(0,0,W,hor+4);
+    // Sun, distant clouds and ridges, all drawn locally without remote assets.
+    c.fillStyle='rgba(255,250,222,.63)';c.beginPath();c.arc(W*.81,h*.24,Math.min(W,h)*.115,0,Math.PI*2);c.fill();
+    for(let i=0;i<3;i++){let x=W*(.13+i*.32)+Math.sin(t*.12+i)*6,y=h*(.15+i*.055);c.fillStyle='rgba(255,255,255,.32)';c.beginPath();c.ellipse(x,y,34+i*7,5,0,0,Math.PI*2);c.fill();}
+    poly([[0,hor], [0,hor-42],[W*.12,hor-78],[W*.23,hor-42],[W*.37,hor-80],[W*.5,hor-36],[W*.65,hor-74],[W*.8,hor-32],[W,hor-80],[W,hor]],w.hills);
+    c.fillStyle='rgba(233,242,223,.3)';c.fillRect(0,hor-2,W,4);
+    let water=c.createLinearGradient(0,hor,0,h);water.addColorStop(0,w.water[0]);water.addColorStop(1,w.water[1]);c.fillStyle=water;c.fillRect(0,hor,W,h-hor);
+    c.save();c.beginPath();c.rect(0,hor,W,h-hor);c.clip();
+    for(let k=0;k<11;k++){let y=hor+18+k*(h-hor)/11,shift=(t*11*(k%2?1:-1))%120;c.strokeStyle=`rgba(220,250,232,${.13+(k%4)*.025})`;c.lineWidth=k%4===0?2:1;c.beginPath();for(let x=-120+shift;x<W+120;x+=120){let lineY=y+Math.sin(t*.8+k*2+x*.01)*2;c.moveTo(x,lineY);c.quadraticCurveTo(x+20,lineY-3,x+47,lineY)}c.stroke();}
+    for(let i=0;i<5;i++){let x=((W*(i*.31+.13)+t*(i%2?8:-12))%(W+110)+W+110)%(W+110)-55,y=hor+35+i*(h-hor)*.145;fishShape(x,y,.38+(i%3)*.22,'#1c6468',i%2?1:-1,.1+(i%2)*.08);}
+    // Occasional glints.
+    for(let i=0;i<10;i++){let xx=W*(i*.131%1)+Math.sin(t*.5+i*7)*5,yy=hor+(i*41%(h-hor));c.globalAlpha=.17+.15*(.5+.5*Math.sin(t*1.5+i));c.fillStyle='#eafff5';c.fillRect(xx,yy,10,1);}c.globalAlpha=1;
+    const floatX=W*.64,floatY=hor+2+Math.sin(t*2.5)*2.5;
+    if(state==='fight'&&target){let fx=W*(.65+Math.sin(t*(fight?.burstLeft>0?7:2.7))*.10),fy=h*(.77+Math.cos(t*2.1)*.04);fishShape(fx,fy,Math.max(.9,Math.min(W/360,1.3))*(target.r>=2?1.55:1.25),target.c,1,.94,true);for(let i=0;i<5;i++){let bx=fx+(i*17)%39,by=fy-20-(t*13+i*19)%60;c.strokeStyle='rgba(238,255,246,.35)';c.lineWidth=1.2;c.beginPath();c.arc(bx,by,2+i%2,0,Math.PI*2);c.stroke()}}
+    c.restore();
+    // A quiet pier and rod. Angled rod and the fishing line react to fish tension.
+    poly([[0,h*.85],[W*.145,h*.85],[W*.145,h],[0,h]],'rgba(50,94,84,.8)');
+    for(let i=0;i<4;i++){c.fillStyle='rgba(25,69,63,.16)';c.fillRect(0,h*(.86+i*.045),W*.145,1)}
+    c.strokeStyle='#355c57';c.lineCap='round';c.lineWidth=6;c.beginPath();c.moveTo(W*.115,h*.88);c.quadraticCurveTo(W*.23,h*.51,W*.4,h*.32);c.stroke();c.strokeStyle='#b8a084';c.lineWidth=2;c.beginPath();c.moveTo(W*.115,h*.88);c.lineTo(W*.17,h*.71);c.stroke();
+    c.strokeStyle='rgba(245,255,251,.8)';c.lineWidth=1.2;c.beginPath();c.moveTo(W*.4,h*.32);if(state==='fight'){let fishX=W*(.65+Math.sin(t*(fight?.burstLeft>0?7:2.7))*.10),fishY=h*(.77+Math.cos(t*2.1)*.04);c.quadraticCurveTo(W*.55,h*.39,fishX,fishY)}else{c.quadraticCurveTo(W*.59,h*.4,floatX,floatY)}c.stroke();
+    c.fillStyle='#f8fffa';c.beginPath();c.ellipse(floatX,floatY-4,2.7,state==='bite'?10:7,Math.sin(t*3)*.1,0,Math.PI*2);c.fill();c.fillStyle='#e78262';c.fillRect(floatX-2.4,floatY-10,4.8,6);c.strokeStyle='rgba(235,255,248,.45)';c.lineWidth=1;c.beginPath();c.ellipse(floatX,floatY+3,11+Math.sin(t*2)*2,3,0,0,Math.PI*2);c.stroke();
+    if(state==='bite'){for(let i=0;i<3;i++){c.strokeStyle=`rgba(255,249,211,${.65-i*.17})`;c.lineWidth=2-i*.4;c.beginPath();c.arc(floatX,floatY+3,12+(((t*35)+i*23)%80),0,Math.PI*2);c.stroke()}}
+    if(state==='fight'&&fight?.burstLeft>0){for(let i=0;i<7;i++){let xx=floatX+(Math.sin(i*2.4+t)*31),yy=hor-Math.abs(Math.cos(t*3+i)*15);c.fillStyle='rgba(244,255,247,.8)';c.beginPath();c.arc(xx,yy,1.8+(i%2),0,Math.PI*2);c.fill()}}
+  }
+  function frame(now){let t=now/1000,dt=Math.min(.05,(now-lastFrame)/1000||.016);lastFrame=now;advance(dt);renderScene(t);if(alertUntil&&t>alertUntil){$('sceneAlert').classList.remove('show');alertUntil=0;}requestAnimationFrame(frame)}
+  $countryList.addEventListener('click',e=>{let b=e.target.closest('[data-country]');if(!b)return;if(['waiting','bite','fight'].includes(state)){toast('请先完成当前这一竿');return}if(save.country===b.dataset.country)return;save.country=b.dataset.country;state='idle';target=null;$('resultLayer').hidden=true;safeSave();renderWorld();renderControl();closeSheets();toast(world().flag+' 已抵达 '+world().name+' · '+world().place);});
+  $action.addEventListener('click',()=>{if(state==='idle'||state==='result')cast();else if(state==='bite')hook();});
+  $action.addEventListener('pointerdown',e=>{if(state==='fight'){e.preventDefault();reeling=true;$action.setPointerCapture?.(e.pointerId);renderMeters();}});
+  const release=()=>{if(reeling){reeling=false;if(state==='fight')renderMeters()}};
+  $action.addEventListener('pointerup',release);$action.addEventListener('pointercancel',release);window.addEventListener('blur',release);document.addEventListener('visibilitychange',()=>{if(document.hidden)release()});
+  document.addEventListener('keydown',e=>{if(e.code!=='Space'||e.target.matches('button:not(#actionBtn),input,textarea'))return;e.preventDefault();if(e.repeat)return;if(state==='fight'){reeling=true;renderMeters()}else if(state==='bite')hook();else if(state==='idle'||state==='result')cast();});
+  document.addEventListener('keyup',e=>{if(e.code==='Space'){e.preventDefault();release()}});
+  function closeSheets(){for(let id of ['countrySheet','toolsCard','atlasPanel'])$(id).hidden=true;$('overlayShade').hidden=true;for(let id of ['worldBtn','toolToggle','atlasBtn'])$(id).setAttribute('aria-expanded','false');}
+  function openSheet(sheet,button){const wasOpen=!$(sheet).hidden;closeSheets();if(!wasOpen){$(sheet).hidden=false;$('overlayShade').hidden=false;$(button).setAttribute('aria-expanded','true');}}
+  $('worldBtn').addEventListener('click',()=>openSheet('countrySheet','worldBtn'));
+  $('atlasBtn').addEventListener('click',()=>openSheet('atlasPanel','atlasBtn'));
+  $('toolToggle').addEventListener('click',()=>openSheet('toolsCard','toolToggle'));
+  $('overlayShade').addEventListener('click',closeSheets);
+  $('closeCountries').addEventListener('click',closeSheets);
+  $('closeAtlas').addEventListener('click',closeSheets);
+  $('closeTools').addEventListener('click',closeSheets);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheets()});
+  $('baitOptions').addEventListener('click',e=>{let btn=e.target.closest('[data-bait]');if(!btn)return;let bait=baitTypes.find(b=>b.id===btn.dataset.bait);if(!bait)return;if(['waiting','bite','fight'].includes(state)){toast('完成本次垂钓后再换饵');return}if(!save.baits.includes(bait.id)){if(save.coins<bait.cost){toast('金币不足，还差 '+(bait.cost-save.coins)+' ●');return}save.coins-=bait.cost;save.baits.push(bait.id);toast('已永久解锁 '+bait.title)}save.bait=bait.id;safeSave();renderTools();renderTop();});
+  $('upgradeBtn').addEventListener('click',()=>{if(['waiting','bite','fight'].includes(state)){toast('完成当前垂钓后才能升级');return}if(save.rod>=4)return;let cost=upgradeCosts[save.rod];if(save.coins<cost){toast('还需要 '+(cost-save.coins)+' ● 才能强化鱼线');return}save.coins-=cost;save.rod++;safeSave();renderTools();renderTop();toast('鱼线已强化至 Lv. '+save.rod)});
+  $('soundBtn').addEventListener('click',()=>{snd=!snd;$('soundBtn').textContent=snd?'♫':'♫̸';$('soundBtn').setAttribute('aria-label',snd?'关闭声音':'开启声音');if(snd)playTone(690,.11)});
+  if('serviceWorker'in navigator && location.protocol.startsWith('http')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+  renderWorld();renderControl();resize();window.addEventListener('resize',resize);if('ResizeObserver'in window)new ResizeObserver(resize).observe($('scene'));requestAnimationFrame(frame);
+  // Support basic test automation without exposing gameplay controls in the UI.
+  window.__DRIFT_DEBUG__={getState:()=>state,getWorld:()=>world().name,getFishCount:()=>worlds.reduce((n,w)=>n+w.fish.length,0),getSave:()=>({...save}),getFight:()=>fight&&({...fight})};
+})();
+</script>
+</body>
+</html>
