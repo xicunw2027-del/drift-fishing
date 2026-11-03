@@ -314,7 +314,7 @@ body{background:#3f858b}button{font:inherit;cursor:pointer}button:focus-visible{
     poly([[0,hor], [0,hor-42],[W*.12,hor-78],[W*.23,hor-42],[W*.37,hor-80],[W*.5,hor-36],[W*.65,hor-74],[W*.8,hor-32],[W,hor-80],[W,hor]],w.hills);
     c.fillStyle='rgba(233,242,223,.3)';c.fillRect(0,hor-2,W,4);
     let water=c.createLinearGradient(0,hor,0,h);water.addColorStop(0,w.water[0]);water.addColorStop(1,w.water[1]);c.fillStyle=water;c.fillRect(0,hor,W,h-hor);
-    c.save();c.beginPath();c.rect(0,hor,W,h-hor);c.clip();
+    c.save();c.beginPath();c.rect(0,hor-h*.27,W,h-hor+h*.27);c.clip();
     for(let k=0;k<11;k++){let y=hor+18+k*(h-hor)/11,shift=(t*11*(k%2?1:-1))%120;c.strokeStyle=`rgba(220,250,232,${.13+(k%4)*.025})`;c.lineWidth=k%4===0?2:1;c.beginPath();for(let x=-120+shift;x<W+120;x+=120){let lineY=y+Math.sin(t*.8+k*2+x*.01)*2;c.moveTo(x,lineY);c.quadraticCurveTo(x+20,lineY-3,x+47,lineY)}c.stroke();}
     for(let i=0;i<5;i++){let x=((W*(i*.31+.13)+t*(i%2?8:-12))%(W+110)+W+110)%(W+110)-55,y=hor+35+i*(h-hor)*.145;fishShape(x,y,.38+(i%3)*.22,'#1c6468',i%2?1:-1,.1+(i%2)*.08);}
     if(state==='waiting'&&waitDuration>0){
