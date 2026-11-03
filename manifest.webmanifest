@@ -1,0 +1,19 @@
+{
+  "name": "DRIFT · 轻钓世界",
+  "short_name": "轻钓世界",
+  "description": "10 国 80 种鱼的极简单键钓鱼网页游戏",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#214c51",
+  "theme_color": "#214c51",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
